@@ -65,3 +65,4 @@ ip link set up dev wg0
 6. Make sure the wireguard device is configuard and comes up on each boot automatically:
 
 ```
+TODO: Add how to set firewall settings over CLI for ssh access over the internet, etc. Had a roadblock with OpenWRT firewall settings via CLI and opted for using the web ui at the moment to get things going.
