@@ -1,0 +1,6 @@
+- name: print out dhcp leased ips
+  ansible.builtin.raw: cat /var/dhcp.leases
+  register: shell_result
+- name: print results
+  debug:
+    var: shell_result.stdout_lines

@@ -1,0 +1,4 @@
+ansible_user: rpi
+ansible_ssh_common_args: "-J root@10.0.0.2"
+
+install_microk8s_channel_version: 1.26/stable

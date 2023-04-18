@@ -1,0 +1,11 @@
+all:
+  hosts:
+  children:
+    routers:
+      hosts:
+        10.0.0.2:
+    rpis:
+      hosts:
+        rpi-microk8s-node-1:
+        rpi-microk8s-node-2:
+        rpi-microk8s-node-3:

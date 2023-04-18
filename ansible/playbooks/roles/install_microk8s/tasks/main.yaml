@@ -1,0 +1,34 @@
+- name: install microk8s snap
+  become: true
+  community.general.snap:
+    name: "microk8s"
+    classic: true
+    channel: "{{ install_microk8s_channel_version }}"
+
+- name: adding rpi user to microk8s group
+  become: true
+  user:
+    name: "rpi"
+    groups: microk8s
+    append: yes
+
+# some convenience aliases for working with microk8s kubectl
+- name: create the .bash_aliases file for the next task
+  ansible.builtin.file:
+    path: /home/rpi/.bash_aliases
+    owner: rpi
+    group: rpi
+    mode: 0644
+    state: "touch"
+
+- name: Template a file to /home/rpi/.bash_aliases
+  ansible.builtin.template:
+    src: templates/.bash_aliases.j2
+    dest: /home/rpi/.bash_aliases
+    owner: rpi
+    group: rpi
+    mode: 0644
+
+- name: unconditionally reboot the machine with all defaults
+  become: true
+  ansible.builtin.reboot:

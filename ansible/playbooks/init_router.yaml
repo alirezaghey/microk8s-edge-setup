@@ -1,0 +1,7 @@
+- name: initialize the router
+  hosts: routers
+  gather_facts: false
+  remote_user: root
+
+  roles:
+    - print_leased_ips

@@ -1,0 +1,41 @@
+# Join rpi-microk8s-node-2 to the cluster
+- name: get join string for rpi-microk8s-node-2 from rpi-microk8s-node-1
+  ansible.builtin.shell: "microk8s add-node --format short | head -n 1"
+  register: node_2_join_string
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-1"
+
+- name: print join string for rpi-microk8s-node-2
+  ansible.builtin.debug: |
+    msg="The microk8s join string is: {{ hostvars['rpi-microk8s-node-1'].node_2_join_string.stdout }}"
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-2"
+
+- name: join rpi-microk8s-node-2 to the cluster
+  ansible.builtin.shell: "{{ hostvars['rpi-microk8s-node-1'].node_2_join_string.stdout }}"
+  register: node_2_join_output
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-2"
+
+- name: print join result message for rpi-microk8s-node-2
+  ansible.builtin.debug: |
+    msg="The microk8s join result message is: {{hostvars['rpi-microk8s-node-2'].node_2_join_output.stdout}}"
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-2"
+
+# Join rpi-microk8s-node-3 to the cluster
+- name: get join string for rpi-microk8s-node-3 from rpi-microk8s-node-1
+  ansible.builtin.shell: "microk8s add-node --format short | head -n 1"
+  register: node_3_join_string
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-1"
+
+- name: print join string for rpi-microk8s-node-3
+  ansible.builtin.debug: |
+    msg="The microk8s join string is: {{ hostvars['rpi-microk8s-node-1'].node_3_join_string.stdout }}"
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-3"
+
+- name: join rpi-microk8s-node-3 to the cluster
+  ansible.builtin.shell: "{{ hostvars['rpi-microk8s-node-1'].node_3_join_string.stdout }}"
+  register: node_3_join_output
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-3"
+
+- name: print join result message for rpi-microk8s-node-3
+  ansible.builtin.debug: |
+    msg="The microk8s join result message is: {{hostvars['rpi-microk8s-node-3'].node_3_join_output.stdout}}"
+  when: ansible_facts['hostname'] == "rpi-microk8s-node-3"

@@ -1,0 +1,51 @@
+- name: initialize the rpis, install microk8s and join the nodes
+  hosts: rpis
+  remote_user: rpi
+
+  roles:
+    - rpi_init
+    - install_microk8s
+    - join_nodes
+# Produce the microk8s join string on node-1 and join node-2 with this join string
+
+# - name: test
+#   hosts: rpis
+#   remote_user: rpi
+#   tasks:
+#     - ansible.builtin.debug: |
+#         msg="{{hostvars['rpi-k8s-node-1']['ansible_facts'].default_ipv4.address}}"
+
+# - name: join rpi-k8s-node-2 to the cluster
+#   hosts: rpis
+#   remote_user: rpi
+#   tasks:
+#     - ansible.builtin.shell: "microk8s add-node --format short | head -n 1"
+#       register: node_2_join_string
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-1"
+#     - ansible.builtin.debug: |
+#         msg="The microk8s join string is: {{ hostvars['rpi-k8s-node-1'].node_2_join_string.stdout }}"
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-2"
+#     - ansible.builtin.shell: "{{ hostvars['rpi-k8s-node-1'].node_2_join_string.stdout }}"
+#       register: node_2_join_output
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-2"
+#     - ansible.builtin.debug: |
+#         msg="The microk8s join result message is: {{hostvars['rpi-k8s-node-2'].node_2_join_output.stdout}}"
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-2"
+
+# # Produce the microk8s join string on node-1 and join node-3 with this join string
+# - name: join rpi-k8s-node-3 to the cluster
+#   hosts: rpis
+#   remote_user: rpi
+#   tasks:
+#     - ansible.builtin.shell: "microk8s add-node --format short | head -n 1"
+#       register: node_3_join_string
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-1"
+#     - ansible.builtin.debug: |
+#         msg="The microk8s join string is: {{ hostvars['rpi-k8s-node-1'].node_3_join_string.stdout }}"
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-3"
+#     - ansible.builtin.shell: "{{ hostvars['rpi-k8s-node-1'].node_3_join_string.stdout }}"
+#       register: node_3_join_output
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-3"
+#     - ansible.builtin.debug: |
+#         msg="The microk8s join result message is: {{hostvars['rpi-k8s-node-3'].node_3_join_output.stdout}}"
+#       when: ansible_facts['hostname'] == "rpi-k8s-node-3"

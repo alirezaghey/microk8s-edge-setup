@@ -1,0 +1,78 @@
+- name: update and upgrade apt packages
+  become: true
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: install required packages for rpi dashboard scripts
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - gcc
+      - make
+
+- name: clone the rpi dashboard script repo
+  ansible.builtin.git:
+    repo: "https://github.com/UCTRONICS/U6143_ssd1306.git"
+    dest: "/home/rpi/U6143_ssd1306/"
+
+- name: create the rc.local file for the next task
+  become: true
+  ansible.builtin.file:
+    path: /etc/rc.local
+    owner: root
+    group: root
+    mode: 0700
+    state: "touch"
+
+- name: Template a file to /etc/rc.local
+  become: true
+  ansible.builtin.template:
+    src: templates/rc.local.j2
+    dest: /etc/rc.local
+    owner: root
+    group: root
+    mode: 0700
+
+# - name: add rpi dashboard script and make the file executable
+#   become: true
+#   ansible.builtin.blockinfile:
+#     path: /etc/rc.local
+#     marker: "# {mark} ANSIBLE MANAGED BLOCK"
+#     mode: 0700
+#     owner: "root"
+#     block: |
+#       #!/bin/sh -e
+
+#       # setup rpi's dashboard
+#       cd /home/rpi/U6143_ssd1306/C
+#       sudo make clean
+#       sudo make
+#       sudo ./display &
+
+- name: enable service rc-local to run init scripts in /etc/rc.local on bootup
+  become: true
+  ansible.builtin.systemd:
+    name: rc-local
+    enabled: true
+
+# add rpi-k8s-node-x name resolution to /etc/hosts; we use the template file instead with the same effect
+# - name: add rpi-k8s-node-x name resolution to /etc/cloud/templates/hosts.debian.tmpl
+#   become: true
+#   ansible.builtin.blockinfile:
+#     path: /etc/cloud/templates/hosts.debian.tmpl
+#     marker: "# {mark} ANSIBLE MANAGED BLOCK"
+#     block: |
+#       {{hostvars['rpi-k8s-node-1']['ansible_facts'].default_ipv4.address}} rpi-k8s-node-1
+#       {{hostvars['rpi-k8s-node-2']['ansible_facts'].default_ipv4.address}} rpi-k8s-node-2
+#       {{hostvars['rpi-k8s-node-3']['ansible_facts'].default_ipv4.address}} rpi-k8s-node-3
+
+# set hostnames for the rpis
+- name: set hostnames
+  become: true
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: unconditionally reboot the machine with all defaults
+  become: true
+  ansible.builtin.reboot:
