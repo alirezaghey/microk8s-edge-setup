@@ -9,16 +9,11 @@
     name:
       - kubernetes
 
-- name: get the current microk8s version number
-  ansible.builtin.stat:
-    path: "/var/snap/microk8s/current"
-  register: current_microk8s_stats
-
 - name: drain node and cordon "{{ inventory_hostname }}", praparing for upgrade
   kubernetes.core.k8s_drain:
     state: drain
     name: "{{ inventory_hostname }}"
-    kubeconfig: "{{ current_microk8s_stats.stat.lnk_source}}/credentials/client.config"
+    kubeconfig: "/var/snap/microk8s/current/credentials/client.config"
     delete_options:
       ignore_daemonsets: true
   register: drain_result
@@ -49,12 +44,19 @@
   kubernetes.core.k8s_drain:
     state: uncordon
     name: "{{ inventory_hostname }}"
-    kubeconfig: "{{ current_microk8s_stats.stat.lnk_source}}/credentials/client.config"
+    kubeconfig: "/var/snap/microk8s/current/credentials/client.config"
   register: uncordon_result
 
 - name: print microk8s uncordon result
   ansible.builtin.debug:
     var: uncordon_result
+# previously we would get the config file using the below procedure with:
+# "{{ current_microk8s_stats.stat.lnk_source}}/credentials/client.config"
+# - name: get the current microk8s version number
+#   ansible.builtin.stat:
+#     path: "/var/snap/microk8s/current"
+#   register: current_microk8s_stats
+
 # - name: Get a list of all pods from any namespace using vars
 #   kubernetes.core.k8s_info:
 #     kind: Pod
