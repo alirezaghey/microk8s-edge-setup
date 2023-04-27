@@ -9,6 +9,7 @@
     name:
       - kubernetes
 
+# TODO: add procedure to drain only if an upgrade is available/possible
 - name: drain node and cordon "{{ inventory_hostname }}", praparing for upgrade
   kubernetes.core.k8s_drain:
     state: drain
@@ -40,6 +41,9 @@
   ansible.builtin.pause:
     seconds: 60
 
+# TODO: look into if this is idempotent in case no draining/cordoning has occured
+# if it's not, make it only trigger, when drain/cofdoning has happend.
+# maybe a handler?
 - name: uncordon node "{{ inventory_hostname }}" after upgrade
   kubernetes.core.k8s_drain:
     state: uncordon
