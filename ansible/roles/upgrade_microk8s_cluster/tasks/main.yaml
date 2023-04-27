@@ -27,10 +27,16 @@
   ansible.builtin.debug:
     var: drain_result
 
+# TODO: change to using community.general.snap when possible
+# This is a hack to overcome community.general.snap's shortcomming
+# regarding `snap refresh` functionality
+# see: https://github.com/ansible-collections/community.general/issues/1606
 - name: upgrade microk8s
   become: true
   ansible.builtin.shell: "snap refresh microk8s --channel {{ upgrade_microk8s_channel_version }}"
   register: microk8s_upgrade_result
+  # a hack to make the shell script idempotent
+  changed_when: "'has no updates available' not in microk8s_upgrade_result.stderr"
 
 # TODO: find a clean solution
 # This isn't an elegant solution
