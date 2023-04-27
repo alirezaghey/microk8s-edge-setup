@@ -1,0 +1,8 @@
+- name: upgrade microk8s cluster
+  hosts: rpis
+  remote_user: rpi
+  serial: 1
+  any_errors_fatal: true
+
+  roles:
+    - upgrade_microk8s_cluster

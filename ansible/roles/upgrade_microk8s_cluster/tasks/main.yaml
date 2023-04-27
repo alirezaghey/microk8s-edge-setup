@@ -1,0 +1,64 @@
+- name: install pip
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - python3-pip
+
+- name: install required packages for the python k8s client
+  ansible.builtin.pip:
+    name:
+      - kubernetes
+
+- name: get the current microk8s version number
+  ansible.builtin.stat:
+    path: "/var/snap/microk8s/current"
+  register: current_microk8s_stats
+
+- name: drain node and cordon "{{ inventory_hostname }}", praparing for upgrade
+  kubernetes.core.k8s_drain:
+    state: drain
+    name: "{{ inventory_hostname }}"
+    kubeconfig: "{{ current_microk8s_stats.stat.lnk_source}}/credentials/client.config"
+    delete_options:
+      ignore_daemonsets: true
+  register: drain_result
+
+- name: print drain result
+  ansible.builtin.debug:
+    var: drain_result
+
+- name: upgrade microk8s
+  become: true
+  ansible.builtin.shell: "snap refresh microk8s --channel {{ upgrade_microk8s_channel_version }}"
+  register: microk8s_upgrade_result
+
+# TODO: find a clean solution
+# This isn't an elegant solution
+# we should find a way to ping the k8s api and check for readines
+- name: pause a little so that the node is up and responsible for uncordoning
+  ansible.builtin.pause:
+    seconds: 60
+
+- name: uncordon node "{{ inventory_hostname }}" after upgrade
+  kubernetes.core.k8s_drain:
+    state: uncordon
+    name: "{{ inventory_hostname }}"
+    kubeconfig: "{{ current_microk8s_stats.stat.lnk_source}}/credentials/client.config"
+  register: uncordon_result
+
+- name: print microk8s uncordon result
+  ansible.builtin.debug:
+    var: uncordon_result
+# - name: Get a list of all pods from any namespace using vars
+#   kubernetes.core.k8s_info:
+#     kind: Pod
+#     kubeconfig: "{{ current_microk8s_stats.stat.lnk_source}}/credentials/client.config"
+#   when: current_microk8s_stats.stat.islnk is defined and current_microk8s_stats.stat.islnk
+#   register: pod_list
+
+# - name: output the pod list to a file
+#   local_action:
+#     module: ansible.builtin.copy
+#     content: "{{ pod_list }}"
+#     dest: output3.json
+#   when: pod_list is defined
