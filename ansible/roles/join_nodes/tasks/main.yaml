@@ -1,3 +1,11 @@
+# TODO: find a clean solution
+# to make sure after the install the cluster is up and running
+# This isn't an elegant solution
+# we should find a way to ping the k8s api and check for readines
+- name: pause a little so that the node is up and responsible for uncordoning
+  ansible.builtin.pause:
+    seconds: 120
+
 # Join rpi-microk8s-node-2 to the cluster
 - name: get join string for rpi-microk8s-node-2 from rpi-microk8s-node-1
   ansible.builtin.shell: "microk8s add-node --format short | head -n 1"

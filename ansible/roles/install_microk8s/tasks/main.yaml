@@ -28,7 +28,6 @@
     owner: rpi
     group: rpi
     mode: 0644
-
-- name: unconditionally reboot the machine with all defaults
-  become: true
-  ansible.builtin.reboot:
+# - name: unconditionally reboot the machine with all defaults
+#   become: true
+#   ansible.builtin.reboot:

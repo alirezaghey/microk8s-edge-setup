@@ -6,6 +6,13 @@
     - rpi_init
     - install_microk8s
     - join_nodes
+
+- name: install kured on the cluster
+  hosts: rpi-microk8s-node-1
+  remote_user: rpi
+
+  roles:
+    - install_kured
 # Produce the microk8s join string on node-1 and join node-2 with this join string
 
 # - name: test

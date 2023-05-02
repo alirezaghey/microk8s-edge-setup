@@ -1,0 +1,29 @@
+- name: install pip
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - python3-pip
+
+- name: install required packages for the python k8s client
+  ansible.builtin.pip:
+    name:
+      - kubernetes
+
+- name: create direcotry for k8s manifests
+  ansible.builtin.file:
+    path: ~/k8s_manifests
+    state: directory
+    mode: "0774"
+
+# Download and apply manifest
+- name: Download kured manifest to the cluster.
+  ansible.builtin.get_url:
+    url: https://github.com/kubereboot/kured/releases/download/{{ install_kured_version }}/kured-{{ install_kured_version }}-dockerhub.yaml
+    dest: ~/k8s_manifests/kured_{{ install_kured_version }}.yaml
+    mode: "0664"
+
+- name: apply kured manifest to the cluster.
+  kubernetes.core.k8s:
+    kubeconfig: "/var/snap/microk8s/current/credentials/client.config"
+    state: present
+    src: ~/k8s_manifests/kured_{{ install_kured_version }}.yaml

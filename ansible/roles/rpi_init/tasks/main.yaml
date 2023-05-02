@@ -72,7 +72,6 @@
   become: true
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
-
-- name: unconditionally reboot the machine with all defaults
-  become: true
-  ansible.builtin.reboot:
+# - name: unconditionally reboot the machine with all defaults
+#   become: true
+#   ansible.builtin.reboot:
