@@ -7,12 +7,12 @@
     - install_microk8s
     - join_nodes
 
-- name: install kured on the cluster
+- name: install kured & argocd on the cluster
   hosts: rpi-microk8s-node-1
   remote_user: rpi
 
   roles:
-    - install_kured
+    - install_kured_argocd
 # Produce the microk8s join string on node-1 and join node-2 with this join string
 
 # - name: test
