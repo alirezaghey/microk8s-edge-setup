@@ -4,12 +4,13 @@
     upgrade: yes
     update_cache: yes
 
-- name: install required packages for rpi dashboard scripts
+- name: install required packages for rpi dashboard scripts and rpi generally
   become: true
   ansible.builtin.apt:
     pkg:
       - gcc
       - make
+      - linux-modules-extra-raspi
 
 - name: clone the rpi dashboard script repo
   ansible.builtin.git:
@@ -72,6 +73,6 @@
   become: true
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
-# - name: unconditionally reboot the machine with all defaults
-#   become: true
-#   ansible.builtin.reboot:
+- name: unconditionally reboot the machine with all defaults
+  become: true
+  ansible.builtin.reboot:
