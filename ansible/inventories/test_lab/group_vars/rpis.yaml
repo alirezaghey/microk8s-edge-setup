@@ -1,6 +1,7 @@
 ansible_user: rpi
 ansible_ssh_common_args: "-J root@10.0.0.2"
 
-install_microk8s_channel_version: 1.26/stable
+install_microk8s_channel_version: 1.27/stable
 upgrade_microk8s_channel_version: 1.26/stable
 install_kured_version: 1.13.0
+install_argocd_version: v2.7.2
