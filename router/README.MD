@@ -66,3 +66,94 @@ ip link set up dev wg0
 
 ```
 TODO: Add how to set firewall settings over CLI for ssh access over the internet, etc. Had a roadblock with OpenWRT firewall settings via CLI and opted for using the web ui at the moment to get things going.
+
+To enable SSH access from the internet on OpenWrt through the command line, you can use the `uci` command to modify the necessary configuration files. Here are the steps to follow:
+
+1. Connect to your OpenWrt router via SSH using a terminal emulator such as PuTTY.
+2. Once you've logged in, use the following command to enable SSH access from the internet:
+
+```
+uci set dropbear.@dropbear[0].Interface='wan'
+```
+
+This command tells OpenWrt to listen for SSH connections on the WAN interface.
+
+3. Next, you'll need to add a firewall rule to allow incoming SSH traffic from the internet. Use the following command:
+
+```
+uci add firewall rule
+uci set firewall.@rule[-1].name='SSH from Internet'
+uci set firewall.@rule[-1].src='wan'
+uci set firewall.@rule[-1].target='ACCEPT'
+uci set firewall.@rule[-1].proto='tcp'
+uci set firewall.@rule[-1].dest_port='22'
+uci commit firewall
+```
+
+This command creates a new firewall rule that allows incoming SSH traffic on port 22 from the WAN interface.
+
+4. Finally, restart the necessary services to apply the changes:
+
+```
+/etc/init.d/dropbear restart
+/etc/init.d/firewall restart
+```
+
+After completing these steps, SSH access from the internet should be enabled on your OpenWrt router. Remember to use strong passwords and consider using SSH keys for authentication to ensure the security of your router.
+
+
+
+
+
+
+To make the above WireGuard setup boot-safe and ensure that it automatically comes up on reboot, you'll need to follow these steps:
+
+1. Create a configuration file for the WireGuard interface. Use the following command to create a new configuration file for the WireGuard interface:
+
+```
+uci set network.wg0=interface
+uci set network.wg0.proto=wireguard
+uci set network.wg0.private_key=$(cat privatekey)
+uci add_list network.wg0.addresses='10.0.0.1/24'
+```
+
+2. Add the new peer to the WireGuard configuration. Use the following commands to add the peer to the configuration:
+
+```
+uci add network wireguard_wg0
+uci set network.@wireguard_wg0[-1].public_key=$(cat peer_publickey)
+uci set network.@wireguard_wg0[-1].allowed_ips='10.0.0.2/32'
+uci set network.@wireguard_wg0[-1].private_key=$(cat peer_privatekey)
+```
+
+3. Set up the WireGuard firewall rules. Use the following commands to set up the firewall rules:
+
+```
+uci add firewall zone
+uci set firewall.@zone[-1].name='wg'
+uci set firewall.@zone[-1].input='ACCEPT'
+uci set firewall.@zone[-1].forward='ACCEPT'
+uci set firewall.@zone[-1].output='ACCEPT'
+uci add firewall forwarding
+uci set firewall.@forwarding[-1].src='wg'
+uci set firewall.@forwarding[-1].dest='lan'
+```
+
+4. Save and apply the changes. Use the following commands to save and apply the changes:
+
+```
+uci commit
+/etc/init.d/network reload
+/etc/init.d/firewall reload
+```
+
+5. Make the configuration boot-safe. Use the following command to create a startup script that will start the WireGuard interface on boot:
+
+```
+echo -e '#!/bin/sh\n/usr/bin/wg-quick up wg0' > /etc/rc.local
+chmod +x /etc/rc.local
+```
+
+This script will start the `wg0` interface using the `wg-quick` command on boot.
+
+After completing these steps, your WireGuard setup should be boot-safe and will automatically come up on reboot.
